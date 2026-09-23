@@ -1,95 +1,480 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ROPAR - Validação de Certificados</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      text-align: center;
-    }
+<title>ROPAR | Validação de Certificados</title>
 
-    .topo {
-      background: #8b0000;
-      padding: 35px 20px;
-    }
+<style>
+* { box-sizing: border-box; }
 
-    .topo h1 {
-      margin: 0;
-      font-size: 42px;
-      letter-spacing: 3px;
-    }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #111;
+  color: #222;
+}
 
-    .topo p {
-      margin-top: 8px;
-    }
+.topo {
+  background: #850d0d;
+  color: white;
+  text-align: center;
+  padding: 32px 20px;
+}
 
-    .container {
-      max-width: 650px;
-      margin: 50px auto;
-      padding: 20px;
-    }
+.topo h1 {
+  margin: 0;
+  font-size: 42px;
+  letter-spacing: 4px;
+}
 
-    .card {
-      background: white;
-      color: #222;
-      border-radius: 15px;
-      padding: 40px 25px;
-    }
+.topo p {
+  margin: 8px 0 0;
+}
 
-    .status {
-      color: #17823b;
-      font-size: 26px;
-      font-weight: bold;
-    }
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 18px;
+}
 
-    .rodape {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #999;
-    }
-  </style>
+.card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0,0,0,.35);
+}
+
+.consulta {
+  padding: 35px 25px;
+  text-align: center;
+}
+
+.consulta h2 {
+  margin-top: 0;
+}
+
+.consulta p {
+  color: #666;
+}
+
+input {
+  width: 100%;
+  max-width: 430px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 17px;
+  text-align: center;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  max-width: 430px;
+  margin: 12px auto 0;
+  padding: 15px;
+  border: 0;
+  border-radius: 7px;
+  background: #850d0d;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #a31212;
+}
+
+#resultado {
+  display: none;
+  border-top: 1px solid #ddd;
+}
+
+.status {
+  text-align: center;
+  padding: 25px;
+}
+
+.status h2 {
+  margin: 5px 0 10px;
+}
+
+.valido {
+  color: #16763b;
+}
+
+.invalido {
+  color: #a00000;
+}
+
+.dados {
+  border-top: 1px solid #eee;
+}
+
+.linha {
+  padding: 16px 25px;
+  border-bottom: 1px solid #eee;
+}
+
+.linha span {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.linha strong {
+  font-size: 16px;
+}
+
+.registro {
+  background: #f5f5f5;
+}
+
+.rodape {
+  text-align: center;
+  color: #888;
+  padding: 25px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.carregando {
+  text-align: center;
+  padding: 25px;
+}
+
+</style>
 </head>
 
 <body>
 
-  <div class="topo">
-    <h1>ROPAR</h1>
-    <p>Resgate • Operações • Patrulha</p>
-  </div>
+<div class="topo">
+  <h1>ROPAR</h1>
+  <p>Resgate • Operações • Patrulha</p>
+</div>
 
-  <div class="container">
+<div class="container">
 
-    <div class="card">
+<div class="card">
 
-      <h2>VALIDAÇÃO DE CERTIFICADOS</h2>
+<div class="consulta">
 
-      <p class="status">
-        ✓ SISTEMA ONLINE
-      </p>
+<h2>VALIDAÇÃO DE CERTIFICADO</h2>
+
+<p>
+Consulte a autenticidade de um certificado emitido pela ROPAR.
+</p>
+
+<input
+id="codigo"
+type="text"
+placeholder="Ex.: ROPAR-2026-0023"
+autocomplete="off">
+
+<button onclick="verificar()">
+VERIFICAR CERTIFICADO
+</button>
+
+</div>
+
+<div id="resultado"></div>
+
+<div class="rodape">
+Sistema de Registro e Validação de Certificados<br>
+ROPAR — Resgate • Operações • Patrulha
+</div>
+
+</div>
+</div>
+
+<script>
+
+const PLANILHA =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vQW8gawdt8pDlzVJ6XiugZPoN9GSLjvVGVtfKsUjwD56A1FJi01Pcr8Gqi1Qlm4JB3HlIXik9PLDnAQ/pub?gid=0&single=true&output=csv";
+
+function limpar(texto) {
+  return String(texto || "")
+    .trim()
+    .replace(/^"|"$/g, "")
+    .replace(/""/g, '"');
+}
+
+function escapar(texto) {
+  return String(texto || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function separarCSV(linha) {
+
+  const resultado = [];
+  let atual = "";
+  let aspas = false;
+
+  for (let i = 0; i < linha.length; i++) {
+
+    const caractere = linha[i];
+
+    if (caractere === '"') {
+
+      if (aspas && linha[i + 1] === '"') {
+        atual += '"';
+        i++;
+      } else {
+        aspas = !aspas;
+      }
+
+    } else if (caractere === "," && !aspas) {
+
+      resultado.push(atual);
+      atual = "";
+
+    } else {
+
+      atual += caractere;
+
+    }
+  }
+
+  resultado.push(atual);
+
+  return resultado.map(limpar);
+}
+
+
+async function verificar() {
+
+  const codigo =
+    document.getElementById("codigo")
+    .value
+    .trim()
+    .toUpperCase();
+
+  const resultado =
+    document.getElementById("resultado");
+
+  resultado.style.display = "block";
+
+  if (!codigo) {
+
+    resultado.innerHTML = `
+      <div class="status">
+        <h2 class="invalido">DIGITE O REGISTRO</h2>
+        <p>Informe o número do certificado.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  resultado.innerHTML =
+    `<div class="carregando">Consultando registro...</div>`;
+
+  try {
+
+    const resposta = await fetch(PLANILHA + "&t=" + Date.now());
+
+    if (!resposta.ok) {
+      throw new Error("Não foi possível acessar a base.");
+    }
+
+    const texto = await resposta.text();
+
+    const linhas = texto
+      .split(/\r?\n/)
+      .filter(linha => linha.trim() !== "");
+
+    let certificado = null;
+
+    for (let i = 1; i < linhas.length; i++) {
+
+      const colunas = separarCSV(linhas[i]);
+
+      const registro =
+        String(colunas[0] || "")
+        .trim()
+        .toUpperCase();
+
+      if (registro === codigo) {
+
+        certificado = {
+          registro: colunas[0],
+          nome: colunas[1],
+          curso: colunas[2],
+          carga: colunas[3],
+          inicio: colunas[4],
+          conclusao: colunas[5],
+          instrutor: colunas[6],
+          status: colunas[7]
+        };
+
+        break;
+      }
+    }
+
+    mostrarResultado(certificado, codigo);
+
+  } catch (erro) {
+
+    resultado.innerHTML = `
+      <div class="status">
+        <h2 class="invalido">ERRO NA CONSULTA</h2>
+        <p>
+        Não foi possível acessar a base de certificados.
+        Tente novamente em alguns instantes.
+        </p>
+      </div>
+    `;
+
+  }
+}
+
+
+function mostrarResultado(c, codigo) {
+
+  const resultado =
+    document.getElementById("resultado");
+
+  if (!c) {
+
+    resultado.innerHTML = `
+      <div class="status">
+        <h2 class="invalido">
+          CERTIFICADO NÃO ENCONTRADO
+        </h2>
+
+        <p>
+          O registro <strong>${escapar(codigo)}</strong>
+          não foi localizado na base da ROPAR.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const status =
+    String(c.status || "")
+    .trim()
+    .toUpperCase();
+
+
+  if (status !== "VÁLIDO" && status !== "VALIDO") {
+
+    resultado.innerHTML = `
+      <div class="status">
+        <h2 class="invalido">
+          CERTIFICADO NÃO VÁLIDO
+        </h2>
+
+        <p>
+          Este registro consta na base da ROPAR,
+          porém seu status atual é
+          <strong>${escapar(c.status)}</strong>.
+        </p>
+      </div>
+
+      ${dadosCertificado(c)}
+    `;
+
+    return;
+  }
+
+
+  resultado.innerHTML = `
+
+    <div class="status">
+
+      <h2 class="valido">
+        ✓ CERTIFICADO VÁLIDO
+      </h2>
 
       <p>
-        Sistema Oficial de Verificação de Certificados ROPAR
-      </p>
-
-      <p>
-        A autenticidade dos certificados emitidos pela ROPAR
-        poderá ser consultada através desta plataforma.
+        Registro localizado na base oficial de
+        certificados da ROPAR.
       </p>
 
     </div>
 
-    <div class="rodape">
-      ROPAR — Resgate • Operações • Patrulha<br>
-      Sistema de Registro e Validação de Certificados
+    ${dadosCertificado(c)}
+
+  `;
+}
+
+
+function dadosCertificado(c) {
+
+  return `
+
+  <div class="dados">
+
+    <div class="linha">
+      <span>Aluno</span>
+      <strong>${escapar(c.nome)}</strong>
+    </div>
+
+    <div class="linha">
+      <span>Curso</span>
+      <strong>${escapar(c.curso)}</strong>
+    </div>
+
+    <div class="linha">
+      <span>Carga horária</span>
+      <strong>${escapar(c.carga)}</strong>
+    </div>
+
+    <div class="linha">
+      <span>Período</span>
+      <strong>
+        ${escapar(c.inicio)} a ${escapar(c.conclusao)}
+      </strong>
+    </div>
+
+    <div class="linha">
+      <span>Instrutor</span>
+      <strong>${escapar(c.instrutor)}</strong>
+    </div>
+
+    <div class="linha registro">
+      <span>Registro ROPAR</span>
+      <strong>${escapar(c.registro)}</strong>
     </div>
 
   </div>
+
+  `;
+}
+
+
+/* Permite que o QR Code já abra consultando o certificado */
+
+window.onload = function() {
+
+  const parametros =
+    new URLSearchParams(window.location.search);
+
+  const codigo =
+    parametros.get("codigo");
+
+  if (codigo) {
+
+    document.getElementById("codigo").value = codigo;
+
+    verificar();
+  }
+};
+
+</script>
 
 </body>
 </html>
