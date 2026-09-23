@@ -1,4 +1,6 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6,7 +8,10 @@
 <title>ROPAR | Validação de Certificados</title>
 
 <style>
-* { box-sizing: border-box; }
+
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -14,6 +19,8 @@ body {
   background: #111;
   color: #222;
 }
+
+/* CABEÇALHO */
 
 .topo {
   background: #850d0d;
@@ -45,8 +52,9 @@ body {
   font-size: 13px;
   font-weight: bold;
   letter-spacing: .5px;
-  opacity: .95;
 }
+
+/* CONTEÚDO */
 
 .container {
   max-width: 700px;
@@ -105,6 +113,8 @@ button:hover {
   background: #a31212;
 }
 
+/* RESULTADO */
+
 #resultado {
   display: none;
   border-top: 1px solid #ddd;
@@ -152,6 +162,33 @@ button:hover {
   background: #f5f5f5;
 }
 
+/* BOTÃO DO CERTIFICADO DIGITAL */
+
+.area-certificado {
+  padding: 25px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.botao-certificado {
+  display: inline-block;
+  width: 100%;
+  max-width: 430px;
+  background: #850d0d;
+  color: white;
+  text-decoration: none;
+  padding: 16px 20px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.botao-certificado:hover {
+  background: #a31212;
+}
+
+/* RODAPÉ */
+
 .rodape {
   text-align: center;
   color: #888;
@@ -170,6 +207,7 @@ button:hover {
 }
 
 </style>
+
 </head>
 
 <body>
@@ -184,7 +222,9 @@ button:hover {
 
   <h1>ROPAR</h1>
 
-  <p>Resgate • Operações • Patrulha</p>
+  <p>
+    Resgate • Operações • Patrulha
+  </p>
 
   <div class="cnpj">
     CNPJ: 46.881.766/0001-23
@@ -192,13 +232,16 @@ button:hover {
 
 </div>
 
+
 <div class="container">
 
 <div class="card">
 
 <div class="consulta">
 
-<h2>VALIDAÇÃO DE CERTIFICADO</h2>
+<h2>
+VALIDAÇÃO DE CERTIFICADO
+</h2>
 
 <p>
 Consulte a autenticidade de um certificado emitido pela ROPAR.
@@ -208,7 +251,8 @@ Consulte a autenticidade de um certificado emitido pela ROPAR.
 id="codigo"
 type="text"
 placeholder="Ex.: ROPAR-2026-0023"
-autocomplete="off">
+autocomplete="off"
+>
 
 <button onclick="verificar()">
 VERIFICAR CERTIFICADO
@@ -216,41 +260,67 @@ VERIFICAR CERTIFICADO
 
 </div>
 
+
 <div id="resultado"></div>
 
+
 <div class="rodape">
-<strong>ROPAR — Resgate • Operações • Patrulha</strong><br>
-CNPJ: 46.881.766/0001-23<br>
+
+<strong>
+ROPAR — Resgate • Operações • Patrulha
+</strong>
+
+<br>
+
+CNPJ: 46.881.766/0001-23
+
+<br>
+
 Sistema Oficial de Registro e Validação de Certificados
+
 </div>
 
 </div>
+
 </div>
+
 
 <script>
+
+/* PLANILHA PÚBLICA DA ROPAR */
 
 const PLANILHA =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQW8gawdt8pDlzVJ6XiugZPoN9GSLjvVGVtfKsUjwD56A1FJi01Pcr8Gqi1Qlm4JB3HlIXik9PLDnAQ/pub?gid=0&single=true&output=csv";
 
+
 function limpar(texto) {
+
   return String(texto || "")
     .trim()
     .replace(/^"|"$/g, "")
     .replace(/""/g, '"');
+
 }
 
+
 function escapar(texto) {
+
   return String(texto || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+
 }
+
+
+/* LEITOR DE CSV */
 
 function separarCSV(linha) {
 
   const resultado = [];
+
   let atual = "";
   let aspas = false;
 
@@ -261,167 +331,303 @@ function separarCSV(linha) {
     if (caractere === '"') {
 
       if (aspas && linha[i + 1] === '"') {
+
         atual += '"';
         i++;
+
       } else {
+
         aspas = !aspas;
+
       }
 
-    } else if (caractere === "," && !aspas) {
+    }
+
+    else if (caractere === "," && !aspas) {
 
       resultado.push(atual);
       atual = "";
 
-    } else {
+    }
+
+    else {
 
       atual += caractere;
 
     }
+
   }
 
   resultado.push(atual);
 
   return resultado.map(limpar);
+
 }
 
+
+/* CONSULTA */
 
 async function verificar() {
 
   const codigo =
-    document.getElementById("codigo")
-    .value
-    .trim()
-    .toUpperCase();
+    document
+      .getElementById("codigo")
+      .value
+      .trim()
+      .toUpperCase();
+
 
   const resultado =
     document.getElementById("resultado");
 
+
   resultado.style.display = "block";
+
 
   if (!codigo) {
 
     resultado.innerHTML = `
+
       <div class="status">
-        <h2 class="invalido">DIGITE O REGISTRO</h2>
-        <p>Informe o número do certificado.</p>
+
+        <h2 class="invalido">
+          DIGITE O REGISTRO
+        </h2>
+
+        <p>
+          Informe o número do certificado.
+        </p>
+
       </div>
+
     `;
 
     return;
+
   }
 
-  resultado.innerHTML =
-    `<div class="carregando">Consultando registro...</div>`;
+
+  resultado.innerHTML = `
+
+    <div class="carregando">
+      Consultando registro...
+    </div>
+
+  `;
+
 
   try {
 
-    const resposta = await fetch(PLANILHA + "&t=" + Date.now());
+    const resposta =
+      await fetch(
+        PLANILHA + "&t=" + Date.now()
+      );
+
 
     if (!resposta.ok) {
-      throw new Error("Não foi possível acessar a base.");
+
+      throw new Error(
+        "Não foi possível acessar a base."
+      );
+
     }
 
-    const texto = await resposta.text();
 
-    const linhas = texto
-      .split(/\r?\n/)
-      .filter(linha => linha.trim() !== "");
+    const texto =
+      await resposta.text();
+
+
+    const linhas =
+      texto
+        .split(/\r?\n/)
+        .filter(
+          linha => linha.trim() !== ""
+        );
+
 
     let certificado = null;
 
-    for (let i = 1; i < linhas.length; i++) {
 
-      const colunas = separarCSV(linhas[i]);
+    for (
+      let i = 1;
+      i < linhas.length;
+      i++
+    ) {
+
+      const colunas =
+        separarCSV(linhas[i]);
+
 
       const registro =
-        String(colunas[0] || "")
+        String(
+          colunas[0] || ""
+        )
         .trim()
         .toUpperCase();
+
 
       if (registro === codigo) {
 
         certificado = {
-          registro: colunas[0],
-          nome: colunas[1],
-          curso: colunas[2],
-          carga: colunas[3],
-          inicio: colunas[4],
-          conclusao: colunas[5],
-          instrutor: colunas[6],
-          status: colunas[7]
+
+          registro:
+            colunas[0],
+
+          nome:
+            colunas[1],
+
+          curso:
+            colunas[2],
+
+          carga:
+            colunas[3],
+
+          inicio:
+            colunas[4],
+
+          conclusao:
+            colunas[5],
+
+          instrutor:
+            colunas[6],
+
+          status:
+            colunas[7],
+
+          linkValidacao:
+            colunas[8],
+
+          qrCode:
+            colunas[9],
+
+          certificadoDigital:
+            colunas[10]
+
         };
 
         break;
+
       }
+
     }
 
-    mostrarResultado(certificado, codigo);
 
-  } catch (erro) {
+    mostrarResultado(
+      certificado,
+      codigo
+    );
+
+
+  }
+
+  catch (erro) {
 
     resultado.innerHTML = `
+
       <div class="status">
-        <h2 class="invalido">ERRO NA CONSULTA</h2>
+
+        <h2 class="invalido">
+          ERRO NA CONSULTA
+        </h2>
+
         <p>
-        Não foi possível acessar a base de certificados.
-        Tente novamente em alguns instantes.
+          Não foi possível acessar a base de certificados.
+          Tente novamente em alguns instantes.
         </p>
+
       </div>
+
     `;
 
   }
+
 }
 
 
-function mostrarResultado(c, codigo) {
+/* EXIBE RESULTADO */
+
+function mostrarResultado(
+  c,
+  codigo
+) {
 
   const resultado =
-    document.getElementById("resultado");
+    document.getElementById(
+      "resultado"
+    );
+
 
   if (!c) {
 
     resultado.innerHTML = `
+
       <div class="status">
+
         <h2 class="invalido">
           CERTIFICADO NÃO ENCONTRADO
         </h2>
 
         <p>
-          O registro <strong>${escapar(codigo)}</strong>
+
+          O registro
+
+          <strong>
+            ${escapar(codigo)}
+          </strong>
+
           não foi localizado na base da ROPAR.
+
         </p>
+
       </div>
+
     `;
 
     return;
+
   }
 
 
   const status =
-    String(c.status || "")
+    String(
+      c.status || ""
+    )
     .trim()
     .toUpperCase();
 
 
-  if (status !== "VÁLIDO" && status !== "VALIDO") {
+  if (
+    status !== "VÁLIDO" &&
+    status !== "VALIDO"
+  ) {
 
     resultado.innerHTML = `
+
       <div class="status">
+
         <h2 class="invalido">
           CERTIFICADO NÃO VÁLIDO
         </h2>
 
         <p>
+
           Este registro consta na base da ROPAR,
           porém seu status atual é
-          <strong>${escapar(c.status)}</strong>.
+
+          <strong>
+            ${escapar(c.status)}
+          </strong>.
+
         </p>
+
       </div>
 
       ${dadosCertificado(c)}
+
     `;
 
     return;
+
   }
 
 
@@ -434,8 +640,8 @@ function mostrarResultado(c, codigo) {
       </h2>
 
       <p>
-        Registro localizado na base oficial de
-        certificados da ROPAR.
+        Registro localizado na base oficial
+        de certificados da ROPAR.
       </p>
 
     </div>
@@ -443,72 +649,178 @@ function mostrarResultado(c, codigo) {
     ${dadosCertificado(c)}
 
   `;
+
 }
 
+
+/* DADOS DO CERTIFICADO */
 
 function dadosCertificado(c) {
 
+  let botaoDigital = "";
+
+
+  if (
+    c.certificadoDigital &&
+    c.certificadoDigital.trim() !== ""
+  ) {
+
+    botaoDigital = `
+
+      <div class="area-certificado">
+
+        <a
+          href="${escapar(c.certificadoDigital)}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="botao-certificado"
+        >
+
+          📄 VISUALIZAR CERTIFICADO DIGITAL
+
+        </a>
+
+      </div>
+
+    `;
+
+  }
+
+
   return `
 
-  <div class="dados">
+    <div class="dados">
 
-    <div class="linha">
-      <span>Aluno</span>
-      <strong>${escapar(c.nome)}</strong>
+      <div class="linha">
+
+        <span>
+          Aluno
+        </span>
+
+        <strong>
+          ${escapar(c.nome)}
+        </strong>
+
+      </div>
+
+
+      <div class="linha">
+
+        <span>
+          Curso
+        </span>
+
+        <strong>
+          ${escapar(c.curso)}
+        </strong>
+
+      </div>
+
+
+      <div class="linha">
+
+        <span>
+          Carga horária
+        </span>
+
+        <strong>
+          ${escapar(c.carga)}
+        </strong>
+
+      </div>
+
+
+      <div class="linha">
+
+        <span>
+          Período
+        </span>
+
+        <strong>
+
+          ${escapar(c.inicio)}
+          a
+          ${escapar(c.conclusao)}
+
+        </strong>
+
+      </div>
+
+
+      <div class="linha">
+
+        <span>
+          Instrutor
+        </span>
+
+        <strong>
+          ${escapar(c.instrutor)}
+        </strong>
+
+      </div>
+
+
+      <div class="linha registro">
+
+        <span>
+          Registro ROPAR
+        </span>
+
+        <strong>
+          ${escapar(c.registro)}
+        </strong>
+
+      </div>
+
+
+      ${botaoDigital}
+
+
     </div>
-
-    <div class="linha">
-      <span>Curso</span>
-      <strong>${escapar(c.curso)}</strong>
-    </div>
-
-    <div class="linha">
-      <span>Carga horária</span>
-      <strong>${escapar(c.carga)}</strong>
-    </div>
-
-    <div class="linha">
-      <span>Período</span>
-      <strong>
-        ${escapar(c.inicio)} a ${escapar(c.conclusao)}
-      </strong>
-    </div>
-
-    <div class="linha">
-      <span>Instrutor</span>
-      <strong>${escapar(c.instrutor)}</strong>
-    </div>
-
-    <div class="linha registro">
-      <span>Registro ROPAR</span>
-      <strong>${escapar(c.registro)}</strong>
-    </div>
-
-  </div>
 
   `;
+
 }
 
 
-/* QR Code abre diretamente o certificado */
+/* 
+QR CODE:
+
+Se o endereço possuir ?codigo=,
+o sistema consulta automaticamente.
+*/
 
 window.onload = function() {
 
   const parametros =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
+
 
   const codigo =
-    parametros.get("codigo");
+    parametros.get(
+      "codigo"
+    );
+
 
   if (codigo) {
 
-    document.getElementById("codigo").value = codigo;
+    document
+      .getElementById(
+        "codigo"
+      )
+      .value = codigo;
+
 
     verificar();
+
   }
+
 };
 
 </script>
 
 </body>
+
 </html>
