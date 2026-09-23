@@ -162,7 +162,7 @@ button:hover {
   background: #f5f5f5;
 }
 
-/* BOTÃO DO CERTIFICADO DIGITAL */
+/* CERTIFICADO DIGITAL */
 
 .area-certificado {
   padding: 25px;
@@ -185,6 +185,18 @@ button:hover {
 
 .botao-certificado:hover {
   background: #a31212;
+}
+
+/* AVISO DE AUTENTICIDADE */
+
+.aviso-autenticidade {
+  margin: 20px 25px 5px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-left: 4px solid #850d0d;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #555;
 }
 
 /* RODAPÉ */
@@ -222,9 +234,7 @@ button:hover {
 
   <h1>ROPAR</h1>
 
-  <p>
-    Resgate • Operações • Patrulha
-  </p>
+  <p>Resgate • Operações • Patrulha</p>
 
   <div class="cnpj">
     CNPJ: 46.881.766/0001-23
@@ -239,9 +249,7 @@ button:hover {
 
 <div class="consulta">
 
-<h2>
-VALIDAÇÃO DE CERTIFICADO
-</h2>
+<h2>VALIDAÇÃO DE CERTIFICADO</h2>
 
 <p>
 Consulte a autenticidade de um certificado emitido pela ROPAR.
@@ -250,7 +258,7 @@ Consulte a autenticidade de um certificado emitido pela ROPAR.
 <input
 id="codigo"
 type="text"
-placeholder="Ex.: ROPAR-2026-0023"
+placeholder="Digite o número de registro"
 autocomplete="off"
 >
 
@@ -287,7 +295,7 @@ Sistema Oficial de Registro e Validação de Certificados
 
 <script>
 
-/* PLANILHA PÚBLICA DA ROPAR */
+/* BASE PÚBLICA DE CERTIFICADOS */
 
 const PLANILHA =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQW8gawdt8pDlzVJ6XiugZPoN9GSLjvVGVtfKsUjwD56A1FJi01Pcr8Gqi1Qlm4JB3HlIXik9PLDnAQ/pub?gid=0&single=true&output=csv";
@@ -315,7 +323,7 @@ function escapar(texto) {
 }
 
 
-/* LEITOR DE CSV */
+/* LEITOR DO CSV */
 
 function separarCSV(linha) {
 
@@ -395,7 +403,7 @@ async function verificar() {
         </h2>
 
         <p>
-          Informe o número do certificado.
+          Informe o número de registro do certificado.
         </p>
 
       </div>
@@ -544,7 +552,7 @@ async function verificar() {
 }
 
 
-/* EXIBE RESULTADO */
+/* RESULTADO DA CONSULTA */
 
 function mostrarResultado(
   c,
@@ -575,8 +583,12 @@ function mostrarResultado(
             ${escapar(codigo)}
           </strong>
 
-          não foi localizado na base da ROPAR.
+          não foi localizado na base oficial da ROPAR.
 
+        </p>
+
+        <p>
+          A autenticidade deste documento não pôde ser confirmada.
         </p>
 
       </div>
@@ -622,7 +634,7 @@ function mostrarResultado(
 
       </div>
 
-      ${dadosCertificado(c)}
+      ${dadosCertificado(c, false)}
 
     `;
 
@@ -640,13 +652,12 @@ function mostrarResultado(
       </h2>
 
       <p>
-        Registro localizado na base oficial
-        de certificados da ROPAR.
+        Registro localizado na base oficial de certificados da ROPAR.
       </p>
 
     </div>
 
-    ${dadosCertificado(c)}
+    ${dadosCertificado(c, true)}
 
   `;
 
@@ -655,12 +666,13 @@ function mostrarResultado(
 
 /* DADOS DO CERTIFICADO */
 
-function dadosCertificado(c) {
+function dadosCertificado(c, certificadoValido) {
 
   let botaoDigital = "";
 
 
   if (
+    certificadoValido &&
     c.certificadoDigital &&
     c.certificadoDigital.trim() !== ""
   ) {
@@ -693,9 +705,7 @@ function dadosCertificado(c) {
 
       <div class="linha">
 
-        <span>
-          Aluno
-        </span>
+        <span>Aluno</span>
 
         <strong>
           ${escapar(c.nome)}
@@ -706,9 +716,7 @@ function dadosCertificado(c) {
 
       <div class="linha">
 
-        <span>
-          Curso
-        </span>
+        <span>Curso</span>
 
         <strong>
           ${escapar(c.curso)}
@@ -719,9 +727,7 @@ function dadosCertificado(c) {
 
       <div class="linha">
 
-        <span>
-          Carga horária
-        </span>
+        <span>Carga horária</span>
 
         <strong>
           ${escapar(c.carga)}
@@ -732,16 +738,12 @@ function dadosCertificado(c) {
 
       <div class="linha">
 
-        <span>
-          Período
-        </span>
+        <span>Período</span>
 
         <strong>
-
           ${escapar(c.inicio)}
           a
           ${escapar(c.conclusao)}
-
         </strong>
 
       </div>
@@ -749,9 +751,7 @@ function dadosCertificado(c) {
 
       <div class="linha">
 
-        <span>
-          Instrutor
-        </span>
+        <span>Instrutor</span>
 
         <strong>
           ${escapar(c.instrutor)}
@@ -762,13 +762,24 @@ function dadosCertificado(c) {
 
       <div class="linha registro">
 
-        <span>
-          Registro ROPAR
-        </span>
+        <span>Registro ROPAR</span>
 
         <strong>
           ${escapar(c.registro)}
         </strong>
+
+      </div>
+
+
+      <div class="aviso-autenticidade">
+
+        <strong>VERIFICAÇÃO DE AUTENTICIDADE</strong>
+
+        <br><br>
+
+        Os dados apresentados neste sistema deverão
+        coincidir com os dados constantes no certificado
+        apresentado.
 
       </div>
 
@@ -783,12 +794,7 @@ function dadosCertificado(c) {
 }
 
 
-/* 
-QR CODE:
-
-Se o endereço possuir ?codigo=,
-o sistema consulta automaticamente.
-*/
+/* CONSULTA AUTOMÁTICA PELO QR CODE */
 
 window.onload = function() {
 
