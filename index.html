@@ -671,24 +671,22 @@ function dadosCertificado(c, certificadoValido) {
   let botaoDigital = "";
 
 
-  if (
-    certificadoValido &&
-    c.certificadoDigital &&
-    c.certificadoDigital.trim() !== ""
-  ) {
+  if (certificadoValido) {
 
     botaoDigital = `
 
       <div class="area-certificado">
 
+        <p>Para solicitar a segunda via do certificado digital, procure a administração da instituição e informe seu nome completo, o curso realizado e o código de registro.</p>
+
         <a
-          href="${escapar(c.certificadoDigital)}"
+          href="./Aviso_Segunda_Via_Certificado.pdf"
           target="_blank"
           rel="noopener noreferrer"
           class="botao-certificado"
         >
 
-          📄 VISUALIZAR CERTIFICADO DIGITAL
+          ORIENTAÇÕES PARA SEGUNDA VIA (PDF)
 
         </a>
 
